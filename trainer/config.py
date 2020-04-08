@@ -49,9 +49,6 @@ def get_config():
     
     parsed, unknown = parser.parse_known_args()
     
-    print('Unknown args:', unknown)
-    print('Parsed args:', parsed.__dict__)
-    
     return parsed
 
 config = get_config()

@@ -1,8 +1,9 @@
 import tensorflow as tf
-from trainer.utils.bicubic_downsample import build_filter, apply_bicubic_downsample
 
 
 def normalize(image):
+    """Returns 0-1 normalized tensor
+    """
     image = tf.cast(image, dtype=tf.float32)
     return (image-tf.math.reduce_min(image))/(tf.math.reduce_max(image)-tf.math.reduce_min(image))
 
@@ -23,6 +24,15 @@ def random_crop(input_image, shape):
 
 @tf.function()
 def random_jitter(input_image, shape):
+    """Returns a random augmented tensor
+
+    Attributes:
+      input_image: `tensor`, tensor with shape [N, H, W, C] or [H, W, C] 
+      shape: `tuple`, (height, width)
+
+    Returns:
+      a tensor has the same shape as input
+    """
     # resizing to target_shape: e.g 286 x 286 x 3
     input_image = resize(input_image, [shape[0], shape[1]])
     shape_float = tf.cast(tf.shape(input_image), tf.float32)
@@ -40,24 +50,22 @@ def random_jitter(input_image, shape):
     return input_image
 
 
-def get_lr(hr, downsampling_factor=4):
-    """Downsample x which is a tensor with shape [N, H, W, 3]
+def get_LR(hr, factor=4):
+    """Resturns downsampled tensor
 
+    Attributs:
+      hr: `tensor`, tensor with shape [N, H, W, C] or [H, W, C]
+      factor: `int`, downsampling factor
+
+    Returns:
+      a tensor
     """
-    hr = tf.expand_dims(hr, 0)
-    k = build_filter(factor=4)
-    lr = apply_bicubic_downsample(hr, filter=k, factor=4)
+    dims = len(hr.shape)
+    assert dims in [3, 4]
+
+    if dims == 3:
+        lr = hr[::factor, ::factor, :]
+    else:
+        lr = hr[:, ::factor, ::factor, :]
     lr = normalize(lr)
-    lr = tf.squeeze(lr)
     return lr
-
-
-def get_LR_HR_pair(hr, downsampling_factor=4):
-    """Downsample x which is a tensor with shape [N, H, W, 3]
-
-    """
-    k = build_filter(factor=4)
-    lr = apply_bicubic_downsample(hr, filter=k, factor=4)
-    lr = normalize(lr)
-    hr = normalize(hr)
-    return lr, hr

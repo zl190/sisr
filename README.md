@@ -12,7 +12,7 @@ The repo was designed to be run in Google Cloud and makes use of GCS for logging
 
 To train the srresnet, the generator solely, using
 ```
-python3 -m trainer.srgan_task --job-dir 'gs://<project>/<path to store tensorboard jobs>'
+python3 -m trainer.srresnet_task --job-dir 'gs://<project>/<path to store tensorboard jobs>'
 ```
 
 To train the discriminator solely, using
